@@ -28,8 +28,6 @@ RUN apt-get update && \
         build-essential && \
     rm -rf /var/lib/apt/lists/*
 
-# Copiar addons
-COPY ./addons /mnt/extra-addons
 
 # Exponer puertos
 EXPOSE 8069 5432
