@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=postgres  # Base de datos predeterminada
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - odoo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  odoo:
+    image: odoo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - HOST=postgres
+      - USER=odoo
+      - PASSWORD=odoo
+      - DB_NAME=postgres  # Usa la base de datos predeterminada
+    ports:
+      - "8070:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+    networks:
+      - odoo-network
+
+volumes:
+  postgres-data:
+  odoo-data:
+
+networks:
+  odoo-network:
+    driver: bridge
