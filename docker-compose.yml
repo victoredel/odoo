@@ -17,7 +17,8 @@ services:
       retries: 5
 
   odoo:
-    image: odoo
+    build: .  # Usar el Dockerfile del directorio actual
+    # image: odoo  # Eliminar esta línea
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,11 +29,10 @@ services:
       - DB_NAME=postgres  # Usa la base de datos predeterminada
     ports:
       - "8070:8069"
-    volumes:
-      - odoo-data:/var/lib/odoo
-      - ./addons:/mnt/extra-addons
     networks:
       - odoo-network
+    volumes:
+      - odoo-data:/var/lib/odoo
 
 volumes:
   postgres-data:

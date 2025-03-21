@@ -1,0 +1,30 @@
+# Usar la imagen oficial de Odoo
+FROM odoo:latest
+
+# Configuración de entorno
+ENV HOST=postgres \
+    USER=odoo \
+    PASSWORD=odoo \
+    DB_NAME=postgres
+
+# Instalar dependencias del sistema
+USER root
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3-pip \
+        libssl-dev \
+        build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copiar addons locales
+COPY ./addons /mnt/extra-addons
+
+# Configurar puertos y volúmenes
+EXPOSE 8069 8071
+VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+
+# Volver al usuario odoo
+USER odoo
+
+# Comando de entrada
+CMD ["odoo"]
