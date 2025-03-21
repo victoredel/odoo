@@ -1,13 +1,25 @@
-# Usar la imagen oficial de Odoo
+# Servicio PostgreSQL
+FROM postgres:latest AS postgres
+
+# Configurar PostgreSQL
+ENV POSTGRES_DB=postgres \
+    POSTGRES_USER=odoo \
+    POSTGRES_PASSWORD=odoo
+
+# Crear usuario con privilegios
+RUN set -eux && \
+    echo "GRANT ALL PRIVILEGES ON DATABASE postgres TO odoo;" >> /docker-entrypoint-initdb.d/init.sql
+
+# Servicio Odoo
 FROM odoo:latest
 
-# Configuración de entorno
+# Configurar Odoo
 ENV HOST=postgres \
     USER=odoo \
     PASSWORD=odoo \
     DB_NAME=postgres
 
-# Instalar dependencias del sistema
+# Instalar dependencias
 USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -16,15 +28,14 @@ RUN apt-get update && \
         build-essential && \
     rm -rf /var/lib/apt/lists/*
 
-# Copiar addons locales
+# Copiar addons
 COPY ./addons /mnt/extra-addons
 
-# Configurar puertos y volúmenes
-EXPOSE 8069 8071
-VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+# Exponer puertos
+EXPOSE 8069 5432
 
 # Volver al usuario odoo
 USER odoo
 
-# Comando de entrada
+# Comando para ambos servicios (requiere docker-compose)
 CMD ["odoo"]
